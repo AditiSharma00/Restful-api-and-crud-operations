@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const cors = require("cors");
+app.use(cors());
 //body parser middleware
 app.use(express.json());
 //routes
