@@ -2,14 +2,14 @@ const postsList = document.querySelector(".posts-list");
 const addPostForm = document.querySelector(".add-post-form");
 const titleValue = document.getElementById("title-value");
 const bodyValue = document.getElementById("body-value");
-
+const btnSubmit=document.querySelector('.btn')
 const url = `http://localhost:5000/api/posts`;
 
 const displayPost = (posts) => {
   posts.forEach((post) => {
     output += `
           <div class="card col-md-6 bg-light">
-            <div class="card-body">
+            <div class="card-body" data-id=${post._id}>
               <h5 class="card-title">${post.title}</h5>
               <h6 class="card-subtitle mb-2 text-muted">${post.date}</h6>
               <p class="card-text">
@@ -55,14 +55,46 @@ addPostForm.addEventListener("submit", (e) => {
       bodyValue.value = "";
     });
 });
-//      METHOD:DELETE
+//      METHOD:DELETE $ METHOD PATCH
 postsList.addEventListener("click", (e) => {
-    e.preventDefault();
-    let deletebuttonclicked=e.target.id==="delete-post";
-    fetch(url,{
-        method:"DELETE",
-        headers:{
-            "Content-Type":"application/json"
-        }
+  e.preventDefault();
+  let deletebuttonclicked = e.target.id === "delete-post";
+  let editbuttonclicked=e.target.id=="edit-post"
+  let id=e.target.parentElement.dataset.id;
+
+  if (deletebuttonclicked) {
+    fetch(`${url}/${id}`, {
+      method: "DELETE",
     })
+      .then((res) => res.json())
+      .then(() => location.reload());
+  }
+  if(editbuttonclicked){
+    const parent=e.target.parentElement;
+    const titleContent=parent.querySelector('.card-title').textContent;
+    let bodyContent=parent.querySelector('.card-text').textContent;
+    titleValue.value=titleContent;
+    bodyValue.value=bodyContent;
+    // console.log(titleContent,bodyContent);
+   
+  }
+  //update -update the existing post
+btnSubmit.addEventListener('click',(e)=>{
+  e.preventDefault();
+  fetch(`${url}/${id}`,{
+    method:"PATCH",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      title:titleValue.value,
+      body:bodyValue.value
+    })
+  })
+  .then((res)=>res.json())
+  .then((data)=>{
+    console.log(data);
+    location.reload();
+  })
 })
+});
